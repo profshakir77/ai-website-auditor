@@ -1,65 +1,134 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
 
 export default function Home() {
+  const [url, setUrl] = useState('')
+  const [result, setResult] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function analyzeWebsite() {
+    if (!url) return
+
+    setLoading(true)
+    setResult('')
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url,
+        }),
+      })
+
+      const data = await response.json()
+
+      setResult(data.result)
+    } catch (error) {
+      setResult('Something went wrong while analyzing the website.')
+    }
+
+    setLoading(false)
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-black text-white">
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <div className="max-w-4xl">
+          <p className="text-green-400 font-semibold mb-4">
+            AI-Powered Website Growth
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+          <h1 className="text-6xl md:text-7xl font-bold leading-tight mb-6">
+            Audit Any Website Using AI
+          </h1>
+
+          <p className="text-xl text-gray-400 mb-10 leading-9">
+            Get instant SEO analysis, homepage optimization tips,
+            conversion improvements, and AI-generated suggestions
+            to grow your business faster.
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-4">
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Enter website URL..."
+              className="flex-1 px-6 py-5 rounded-2xl bg-zinc-900 border border-zinc-700 outline-none text-lg"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+            <button
+              onClick={analyzeWebsite}
+              disabled={loading}
+              className="px-8 py-5 rounded-2xl bg-white text-black font-semibold hover:bg-gray-200 transition disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  Analyzing Website...
+                </div>
+              ) : (
+                'Analyze Website'
+              )}
+            </button>
+          </div>
+
+          {result && (
+            <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+
+                  <p className="text-white font-semibold text-lg">
+                    AI Website Audit Report
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => navigator.clipboard.writeText(result)}
+                  className="text-sm px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition"
+                >
+                  Copy Report
+                </button>
+              </div>
+
+              <div className="whitespace-pre-wrap text-gray-300 leading-8">
+                {result}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-16 flex flex-wrap gap-10 text-sm text-gray-500">
+            <div>
+              <span className="text-white font-bold text-3xl">
+                10K+
+              </span>
+
+              <p className="mt-1">Audits Generated</p>
+            </div>
+
+            <div>
+              <span className="text-white font-bold text-3xl">
+                3X
+              </span>
+
+              <p className="mt-1">SEO Improvement</p>
+            </div>
+
+            <div>
+              <span className="text-white font-bold text-3xl">
+                24/7
+              </span>
+
+              <p className="mt-1">AI Analysis</p>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
-  );
+      </section>
+    </main>
+  )
 }
